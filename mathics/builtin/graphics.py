@@ -1372,6 +1372,7 @@ class Large(Builtin):
 
 element_heads = frozenset(
     system_symbols(
+        "Line",
         "Arrow",
         "BezierCurve",
         "Circle",

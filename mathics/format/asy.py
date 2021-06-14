@@ -4,7 +4,8 @@
 Format a Mathics object as an Asymptote string
 """
 
-from mathics.builtin.box.graphics import (
+from mathics.builtin.drawing.plot import DensityPlotBox
+from mathics.builtin.graphics import (
     _ArcBox,
     ArrowBox,
     BezierCurveBox,
@@ -181,6 +182,51 @@ def bezier_curve_box(self, **options) -> str:
 
 add_conversion_fn(BezierCurveBox, bezier_curve_box)
 
+# FIXME: Figure out what the right thing to do is for density plots.
+def density_plot_box(self, **options):
+    """
+    Aymptote formatter for DensityPlotBox
+    """
+    line_width = 1 # Or 0?
+    pens = asy_create_pens(
+        edge_color=None,
+        face_color=None,
+        stroke_width=line_width,
+        is_face_element=True,
+    )
+    asy = ""
+    if self.vertex_colors is not None:
+        paths = []
+        colors = []
+        edges = []
+        for index, line in enumerate(self.lines):
+            paths.append(
+                "--".join(["(%.5g,%.5g)" % coords.pos() for coords in line]) + "--cycle"
+            )
+
+            # ignore opacity
+            colors.append(
+                ",".join([_color(color)[0] for color in self.vertex_colors[index]])
+            )
+
+            edges.append(",".join(["0"] + ["1"] * (len(self.vertex_colors[index]) - 1)))
+
+        asy += "gouraudshade(%s, new pen[] {%s}, new int[] {%s});" % (
+            "^^".join(paths),
+            ",".join(colors),
+            ",".join(edges),
+        )
+    if pens and pens != "nullpen":
+        for line in self.lines:
+            path = (
+                "--".join(["(%.5g,%.5g)" % coords.pos() for coords in line]) + "--cycle"
+            )
+            asy += "filldraw(%s, %s);" % (path, pens)
+
+    # print("### DensityPlotBox", asy)
+    return asy
+
+add_conversion_fn(DensityPlotBox, density_plot_box)
 
 def cylinder3dbox(self, **options) -> str:
     if self.face_color is None:

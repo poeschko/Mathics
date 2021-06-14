@@ -26,8 +26,13 @@ from mathics.core.expression import (
     SymbolRule,
 )
 
-from mathics.builtin.base import Builtin
-from mathics.builtin.graphics import Graphics
+from mathics.builtin.base import BoxConstructError, Builtin
+from mathics.builtin.graphics import (
+    GLOBALS,
+    GRAPHICS_SYMBOLS,
+    Graphics,
+    PolygonBox,
+)
 from mathics.builtin.drawing.graphics3d import Graphics3D
 from mathics.builtin.numeric import chop
 from mathics.builtin.options import options_to_rules
@@ -2581,7 +2586,7 @@ class DensityPlot(_Plot3D):
 
         graphics.append(
             Expression(
-                "Polygon",
+                "DensityPlotBox",
                 Expression(SymbolList, *points),
                 Expression(
                     "Rule",
@@ -2610,3 +2615,25 @@ class DensityPlot(_Plot3D):
             Expression(SymbolList, *graphics),
             *options_to_rules(options, Graphics.options)
         )
+
+
+class DensityPlotBox(PolygonBox):
+    def init(self, graphics, style, item=None, lines=None):
+        super(PolygonBox, self).init(graphics, item, style)
+        self.vertex_colors = None
+        # FIXME do we need to figure out how to set vertex_colors?
+        # I Don't understand why super() is not doing the below...
+        if item is not None:
+            if len(item.leaves) != 1:
+                raise BoxConstructError
+            points = item.leaves[0]
+            self.do_init(graphics, points)
+        elif lines is not None:
+            self.lines = lines
+        else:
+            raise BoxConstructError
+
+
+GLOBALS.update({"System`DensityPlotBox": DensityPlotBox})
+
+GRAPHICS_SYMBOLS.add("DensityPlot")

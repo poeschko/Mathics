@@ -5,7 +5,13 @@ import json
 Format a Mathics object as an SVG string
 """
 
+<<<<<<< HEAD:mathics/format/svg.py
 from mathics.builtin.box.graphics import (
+=======
+from mathics.builtin.drawing.graphics3d import Graphics3DElements
+from mathics.builtin.drawing.plot import DensityPlotBox
+from mathics.builtin.graphics import (
+>>>>>>> WIP Start adding DensityPlotBox:mathics/formatter/svg.py
     _ArcBox,
     ArrowBox,
     BezierCurveBox,
@@ -151,6 +157,40 @@ def beziercurvebox(self, **options) -> str:
 
 add_conversion_fn(BezierCurveBox)
 
+
+def density_plot_box(self, **options):
+    """
+    SVG formatter for DensityPlotBox
+    """
+    svg = ""
+    # FIXME: probably need to set vertex colors properly
+    if self.vertex_colors is not None:
+        mesh = []
+        for index, line in enumerate(self.lines):
+            data = [
+                [coords.pos(), color.to_js()]
+                for coords, color in zip(line, self.vertex_colors[index])
+            ]
+            mesh.append(data)
+        # FIXME: this is not valid SVG
+        svg += '<meshgradient data="%s" />' % json.dumps(mesh)
+
+    # FIXME turn this into
+    #    <defs>
+    #        <radialGradient ..>
+    #        ...
+    #    </defs>
+    #
+    #    <rect ... >
+    #    <rect ... >
+    # See  https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Gradients#radial_gradient
+    for line in self.lines:
+        svg += f"""<density_plot_fixme points="{" ".join("%f,%f" % coords.pos() for coords in line)} />"""
+    # print("XXX DensityPlotBox", svg)
+    return svg
+
+
+add_conversion_fn(DensityPlotBox, density_plot_box)
 
 def filled_curve_box(self, **options):
     line_width = self.style.get_line_width(face_element=False)
@@ -354,26 +394,13 @@ def polygonbox(self, **options):
 
     # I think face_color == None means the face color is transparent.
     # FIXME: explain the relationshop between self.vertex_colors and self.face_color
-    if self.vertex_colors is None:
-        face_color = self.face_color
-    else:
-        face_color = None
+    face_color = self.face_color if self.vertex_colors is None else None
 
     style = create_css(
-        edge_color=self.edge_color, face_color=face_color, stroke_width=line_width
+        edge_color=self.edge_color, face_color=self.face_color, stroke_width=line_width
     )
 
     svg = ""
-    if self.vertex_colors is not None:
-        mesh = []
-        for index, line in enumerate(self.lines):
-            data = [
-                [coords.pos(), color.to_js()]
-                for coords, color in zip(line, self.vertex_colors[index])
-            ]
-            mesh.append(data)
-        # FIXME: this is not valid SVG
-        svg += '<meshgradient data="%s" />' % json.dumps(mesh)
 
     # WL says this about 2D polygons:
     #   A point is an element of the polygon if a ray from the point in any direction in the plane crosses the boundary line segments an odd number of times.
