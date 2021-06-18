@@ -2620,9 +2620,8 @@ class DensityPlot(_Plot3D):
 class DensityPlotBox(PolygonBox):
     def init(self, graphics, style, item=None, lines=None):
         super(PolygonBox, self).init(graphics, item, style)
+        # FIXME: pick out vertex_colors
         self.vertex_colors = None
-        # FIXME do we need to figure out how to set vertex_colors?
-        # I Don't understand why super() is not doing the below...
         if item is not None:
             if len(item.leaves) != 1:
                 raise BoxConstructError

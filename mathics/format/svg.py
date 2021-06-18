@@ -5,13 +5,10 @@ import json
 Format a Mathics object as an SVG string
 """
 
-<<<<<<< HEAD:mathics/format/svg.py
-from mathics.builtin.box.graphics import (
-=======
 from mathics.builtin.drawing.graphics3d import Graphics3DElements
 from mathics.builtin.drawing.plot import DensityPlotBox
 from mathics.builtin.graphics import (
->>>>>>> WIP Start adding DensityPlotBox:mathics/formatter/svg.py
+
     _ArcBox,
     ArrowBox,
     BezierCurveBox,
@@ -162,10 +159,15 @@ def density_plot_box(self, **options):
     """
     SVG formatter for DensityPlotBox
     """
-    svg = ""
+    return "density plot not working yet"
+
     # FIXME: probably need to set vertex colors properly
-    if self.vertex_colors is not None:
+    if self.vertex_colors is None:
+        black = 0
+        self.vertex_colors = [[black] * len(line) for line in self.lines]
+    else:
         mesh = []
+        # FIXME: this is a holdever from old code
         for index, line in enumerate(self.lines):
             data = [
                 [coords.pos(), color.to_js()]
@@ -175,17 +177,30 @@ def density_plot_box(self, **options):
         # FIXME: this is not valid SVG
         svg += '<meshgradient data="%s" />' % json.dumps(mesh)
 
-    # FIXME turn this into
-    #    <defs>
-    #        <radialGradient ..>
-    #        ...
-    #    </defs>
-    #
-    #    <rect ... >
-    #    <rect ... >
     # See  https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Gradients#radial_gradient
-    for line in self.lines:
-        svg += f"""<density_plot_fixme points="{" ".join("%f,%f" % coords.pos() for coords in line)} />"""
+    defs = []
+    rects = []
+    min_value = 0
+    max_value = 0
+    row_position = []
+    vertex_colors = list(self.vertex_colors)
+    vertex.colors.append(self.vertex_colors[-1])
+    for i, line in enumerate(self.lines):
+        for coords in lines:
+            gradient = f"""  <linearGradient id="densityGradient{i}"
+      <stop offset="25%" stop-color={vertex_colors[i]}
+      <stop offset="75%" stop-color={vertex_colors[i+1]}
+    </linearGradient>
+"""
+            defs.append(gradient)
+        # FIXME: fill this in
+        rect = f"""<rect x= ... """
+        rects.append(rect)
+
+    def_body = "\n".join(defs)
+    svg = f"""<defs>
+  {def_body}
+</defs>"""
     # print("XXX DensityPlotBox", svg)
     return svg
 
@@ -430,7 +445,11 @@ def rectanglebox(self, **options):
     w = max(x1, x2) - xmin
     h = max(y1, y2) - ymin
     offset = options.get("offset", None)
+<<<<<<< HEAD:mathics/format/svg.py
     if offset is not None:
+=======
+    if offset:
+>>>>>>> WIP - try to fill in more stuff.:mathics/formatter/svg.py
         x1, x2 = x1 + offset[0], x2 + offset[0]
         y1, y2 = y1 + offset[1], y2 + offset[1]
     style = create_css(self.edge_color, self.face_color, line_width)
