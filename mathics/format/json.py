@@ -47,9 +47,9 @@ def arrow_3d_box(self):
     for line in self.lines:
         data.append(
             {
-                "type": "arrow",
-                "coords": [coords.pos() for coords in line],
-                "color": self.edge_color.to_rgba(),
+                "type": "Arrow",
+                "Coords": [coords.pos() for coords in line],
+                "RGBGAColor": self.edge_color.to_rgba(),
             }
         )
     # print("### json Arrow3DBox", data)
@@ -65,10 +65,10 @@ def cylinder_3d_box(self):
         face_color = face_color.to_js()
     return [
         {
-            "type": "cylinder",
-            "coords": [coords.pos() for coords in self.points],
-            "radius": self.radius,
-            "faceColor": face_color,
+            "type": "Cylinder",
+            "Coords": [coords.pos() for coords in self.points],
+            "Radius": self.radius,
+            "RGBGAColor": face_color,
         }
     ]
 
@@ -82,9 +82,9 @@ def line_3d_box(self):
     for line in self.lines:
         data.append(
             {
-                "type": "line",
-                "coords": [coords.pos() for coords in line],
-                "color": self.edge_color.to_rgba(),
+                "type": "Line",
+                "Coords": [coords.pos() for coords in line],
+                "RGBGAColor": self.edge_color.to_rgba(),
             }
         )
     # print("### json Line3DBox", data)
@@ -109,10 +109,10 @@ def point_3d_box(self):
     for line in self.lines:
         data.append(
             {
-                "type": "point",
-                "coords": [coords.pos() for coords in line],
-                "color": face_color.to_rgba(),
-                "pointSize": relative_point_size,
+                "type": "Point",
+                "Coords": [coords.pos() for coords in line],
+                "PointSize": relative_point_size,
+                "RGBGAColor": face_color.to_rgba(),
             }
         )
     # print("### json Point3DBox", data)
@@ -136,9 +136,9 @@ def polygon_3d_box(self):
     for line in self.lines:
         data.append(
             {
-                "type": "polygon",
-                "coords": [coords.pos() for coords in line],
-                "faceColor": face_color,
+                "type": "Polygon",
+                "Coords": [coords.pos() for coords in line],
+                "Color": face_color,
             }
         )
     # print("### json Polygon3DBox", data)
@@ -154,10 +154,10 @@ def sphere_3d_box(self):
         face_color = face_color.to_js()
     return [
         {
-            "type": "sphere",
-            "coords": [coords.pos() for coords in self.points],
-            "radius": self.radius,
-            "faceColor": face_color,
+            "type": "Sphere",
+            "Coords": [coords.pos() for coords in self.points],
+            "Radius": self.radius,
+            "Color": face_color,
         }
     ]
 
