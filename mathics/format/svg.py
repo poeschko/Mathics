@@ -177,19 +177,25 @@ def density_plot_box(self, **options):
         # FIXME: this is not valid SVG
         svg += '<meshgradient data="%s" />' % json.dumps(mesh)
 
-    # See  https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Gradients#radial_gradient
+    # See  https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Gradients#linear_gradient
     defs = []
     rects = []
     min_value = 0
     max_value = 0
     row_position = []
+
+    # Pad out vertex colors on either end. The color is the
+    # the same as the first item at the beginning and the last item at the end.
     vertex_colors = list(self.vertex_colors)
     vertex.colors.append(self.vertex_colors[-1])
+    vertex.colors.insert(0, vertex_colors[0])
+
     for i, line in enumerate(self.lines):
         for coords in lines:
             gradient = f"""  <linearGradient id="densityGradient{i}"
-      <stop offset="25%" stop-color={vertex_colors[i]}
-      <stop offset="75%" stop-color={vertex_colors[i+1]}
+      <stop offset="0%" stop-color={vertex_colors[i]}
+      <stop offset="50%" stop-color={vertex_colors[i+1]}
+      <stop offset="100%" stop-color={vertex_colors[i+2]}
     </linearGradient>
 """
             defs.append(gradient)
@@ -445,11 +451,7 @@ def rectanglebox(self, **options):
     w = max(x1, x2) - xmin
     h = max(y1, y2) - ymin
     offset = options.get("offset", None)
-<<<<<<< HEAD:mathics/format/svg.py
     if offset is not None:
-=======
-    if offset:
->>>>>>> WIP - try to fill in more stuff.:mathics/formatter/svg.py
         x1, x2 = x1 + offset[0], x2 + offset[0]
         y1, y2 = y1 + offset[1], y2 + offset[1]
     style = create_css(self.edge_color, self.face_color, line_width)
