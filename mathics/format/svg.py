@@ -7,8 +7,8 @@ Format a Mathics object as an SVG string
 
 from mathics.builtin.drawing.graphics3d import Graphics3DElements
 from mathics.builtin.drawing.plot import DensityPlotBox
-from mathics.builtin.graphics import (
 
+from mathics.builtin.box.graphics import (
     _ArcBox,
     ArrowBox,
     BezierCurveBox,

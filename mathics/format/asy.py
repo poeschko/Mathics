@@ -5,7 +5,7 @@ Format a Mathics object as an Asymptote string
 """
 
 from mathics.builtin.drawing.plot import DensityPlotBox
-from mathics.builtin.graphics import (
+from mathics.builtin.box.graphics import (
     _ArcBox,
     ArrowBox,
     BezierCurveBox,

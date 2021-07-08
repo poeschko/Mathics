@@ -26,12 +26,12 @@ from mathics.core.expression import (
     SymbolRule,
 )
 
+from mathics.builtin.box.graphics import PolygonBox
 from mathics.builtin.base import BoxConstructError, Builtin
 from mathics.builtin.graphics import (
     GLOBALS,
     GRAPHICS_SYMBOLS,
     Graphics,
-    PolygonBox,
 )
 from mathics.builtin.drawing.graphics3d import Graphics3D
 from mathics.builtin.numeric import chop
