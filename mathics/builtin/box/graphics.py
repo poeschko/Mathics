@@ -42,7 +42,6 @@ from mathics.core.expression import (
     String,
     Symbol,
     SymbolList,
-    system_symbols_dict,
 )
 
 # Note: has to come before _ArcBox
@@ -1064,7 +1063,7 @@ class PolygonBox(_Polyline):
         super(PolygonBox, self).init(graphics, item, style)
         self.edge_color, self.face_color = style.get_style(_Color, face_element=True)
         if item is not None:
-            if len(item.leaves) not in (1, 2):
+            if 1 <= len(item.leaves) <= 2:
                 raise BoxConstructError
             points = item.leaves[0]
             self.do_init(graphics, points)

@@ -22,7 +22,6 @@ from mathics.builtin.box.graphics import (
     _RoundBox,
 )
 
-from mathics.builtin.drawing.graphics3d import Graphics3DElements
 from mathics.builtin.graphics import (
     DEFAULT_POINT_FACTOR,
     GraphicsElements,
@@ -157,61 +156,56 @@ add_conversion_fn(BezierCurveBox)
 
 def density_plot_box(self, **options):
     """
-    SVG formatter for DensityPlotBox
+    SVG formatter for DensityPlotBox.
     """
-    return "density plot not working yet"
+    # A DensityPlot is a just a list of triangles each of which have its density color.
+    #
+    # So this code is similar to PolygonBox.
+    #
+    # However note that many of the PolygonBox features are a little
+    # different here. First, everything is a triangle, so there the
+    # notion of odd/even crossing with holes doesn't apply.  Second
+    # since each each point/triangle could be a different color, we'll
+    # have to write out a separate polygon for each.
 
-    # FIXME: probably need to set vertex colors properly
-    if self.vertex_colors is None:
-        black = 0
-        self.vertex_colors = [[black] * len(line) for line in self.lines]
-    else:
-        mesh = []
-        # FIXME: this is a holdever from old code
-        for index, line in enumerate(self.lines):
-            data = [
-                [coords.pos(), color.to_js()]
-                for coords, color in zip(line, self.vertex_colors[index])
+    # There is a lot of fanciness one could do here, like sort points into those that have
+    # the same color and put all of those into a single polygonbox.
+
+    # Here is an even more elaborate scheme which I won't use, but
+    # since it is a cute idea, it is worthy of comment space...  Put
+    # two triangles together to get a parallelogram. Compute the
+    # midpoint color in the enter and along all four sides. Then use
+    # two overlayed rectangular gradients each at opacity 0.5
+    # to go from the center to each of the (square) sides.
+
+    stroke_width = self.style.get_line_width(face_element=True)
+    face_color = self.face_color
+    style = create_css(
+        edge_color=self.edge_color, face_color=self.face_color, stroke_width=stroke_width
+    )
+    svg = ""
+
+    mesh = []
+    # from trepan.api import debug; debug()
+    for index, line in enumerate(self.lines):
+        data = [
+            [coords.pos(), color.to_js()]
+            for coords, color in zip(line, self.vertex_colors[index])
             ]
-            mesh.append(data)
-        # FIXME: this is not valid SVG
-        svg += '<meshgradient data="%s" />' % json.dumps(mesh)
+        mesh.append(data)
+    svg += '<meshgradient data="%s" />' % json.dumps(mesh)
+    from trepan.api import debug; debug()
 
-    # See  https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Gradients#linear_gradient
-    defs = []
-    rects = []
-    min_value = 0
-    max_value = 0
-    row_position = []
-
-    # Pad out vertex colors on either end. The color is the
-    # the same as the first item at the beginning and the last item at the end.
-    vertex_colors = list(self.vertex_colors)
-    vertex.colors.append(self.vertex_colors[-1])
-    vertex.colors.insert(0, vertex_colors[0])
-
-    for i, line in enumerate(self.lines):
-        for coords in lines:
-            gradient = f"""  <linearGradient id="densityGradient{i}"
-      <stop offset="0%" stop-color={vertex_colors[i]}
-      <stop offset="50%" stop-color={vertex_colors[i+1]}
-      <stop offset="100%" stop-color={vertex_colors[i+2]}
-    </linearGradient>
-"""
-            defs.append(gradient)
-        # FIXME: fill this in
-        rect = f"""<rect x= ... """
-        rects.append(rect)
-
-    def_body = "\n".join(defs)
-    svg = f"""<defs>
-  {def_body}
-</defs>"""
-    # print("XXX DensityPlotBox", svg)
+    for line in self.lines:
+        svg += '<polygon points="%s" style="%s" />' % (
+            " ".join("%f,%f" % coords.pos() for coords in line),
+            style,
+        )
     return svg
 
 
 add_conversion_fn(DensityPlotBox, density_plot_box)
+
 
 def filled_curve_box(self, **options):
     line_width = self.style.get_line_width(face_element=False)

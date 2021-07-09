@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Plotting
+Plotting Data
 
 Plotting functions take a function as a parameter and data, often a range of points, as another parameter, and plot or show the function applied to the data.
 """
@@ -26,8 +26,9 @@ from mathics.core.expression import (
     SymbolRule,
 )
 
+from mathics.builtin.box.plot import DensityPlotBox
 from mathics.builtin.box.graphics import PolygonBox
-from mathics.builtin.base import BoxConstructError, Builtin
+from mathics.builtin.base import Builtin
 from mathics.builtin.graphics import (
     GLOBALS,
     GRAPHICS_SYMBOLS,
@@ -2588,6 +2589,7 @@ class DensityPlot(_Plot3D):
             Expression(
                 "DensityPlotBox",
                 Expression(SymbolList, *points),
+                Expression(SymbolList, *vertex_colors),
                 Expression(
                     "Rule",
                     Symbol("VertexColors"),
@@ -2616,23 +2618,11 @@ class DensityPlot(_Plot3D):
             *options_to_rules(options, Graphics.options)
         )
 
-
-class DensityPlotBox(PolygonBox):
-    def init(self, graphics, style, item=None, lines=None):
-        super(PolygonBox, self).init(graphics, item, style)
-        # FIXME: pick out vertex_colors
-        self.vertex_colors = None
-        if item is not None:
-            if len(item.leaves) != 1:
-                raise BoxConstructError
-            points = item.leaves[0]
-            self.do_init(graphics, points)
-        elif lines is not None:
-            self.lines = lines
-        else:
-            raise BoxConstructError
-
-
-GLOBALS.update({"System`DensityPlotBox": DensityPlotBox})
-
 GRAPHICS_SYMBOLS.add("DensityPlot")
+GRAPHICS_SYMBOLS.add("PieChart")
+GLOBALS.update({
+    "DensityPlot": DensityPlot,
+    "PieChart": PieChart,
+    "System`DensityPlotBox": DensityPlotBox,
+    "System`PolygonBox": PolygonBox,
+    })
