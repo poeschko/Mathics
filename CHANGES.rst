@@ -243,7 +243,6 @@ Enhancements
 * Axes for 2D Plots are now rendered for SVGs
 * ``InsertBox`` accepts an opaque parameter
 
-
 Bug fixes
 +++++++++
 
